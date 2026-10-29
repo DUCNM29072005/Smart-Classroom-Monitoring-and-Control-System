@@ -1,0 +1,3453 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phòng Học IoT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f7fb;
+      color: #1e293b;
+      min-height: 100vh;
+    }
+
+    /* ========== LOGIN ========== */
+    #loginPage {
+      display: flex;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f0f7ff 0%, #f8fafc 100%);
+    }
+
+    .login-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      position: relative;
+    }
+
+    .classroom-preview {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      border: 1.5px dashed #93c5fd;
+      border-radius: 20px;
+      padding: 28px 24px 24px;
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .classroom-img {
+      width: 100%;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #dbeafe 0%, #e0f2fe 55%, #e2e8f0 55%, #cbd5e1 100%);
+      aspect-ratio: 16/11;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sensor-bubble {
+      position: absolute;
+      background: white;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #334155;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      z-index: 2;
+    }
+
+    .sensor-bubble .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3b82f6;
+      flex-shrink: 0;
+    }
+
+    .sensor-bubble.temp {
+      top: 10%;
+      left: 6%;
+    }
+
+    .sensor-bubble.humidity {
+      top: 10%;
+      right: 6%;
+    }
+
+    .sensor-bubble.co2 {
+      bottom: 22%;
+      left: 8%;
+    }
+
+    .sensor-bubble.light {
+      bottom: 22%;
+      right: 8%;
+    }
+
+    .center-icon {
+      position: absolute;
+      top: 38%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 48px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      z-index: 2;
+    }
+
+    .login-desc {
+      margin-top: 20px;
+      text-align: center;
+      max-width: 100%;
+      padding: 0 8px;
+    }
+
+    .login-desc h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .login-desc p {
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.55;
+    }
+
+    .login-right {
+      width: 420px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px 40px;
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.03);
+    }
+
+    .login-logo {
+      width: 48px;
+      height: 48px;
+      background: #3b82f6;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 24px;
+    }
+
+    .login-right h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .login-right>p {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: #3b82f6;
+    }
+
+    .form-group .input-icon {
+      position: relative;
+    }
+
+    .form-group .input-icon input {
+      padding-left: 40px;
+    }
+
+    .form-group .input-icon svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+    }
+
+    .btn-login {
+      width: 100%;
+      height: 46px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-login:hover {
+      background: #2563eb;
+    }
+
+
+    /* User menu popup (slide up) */
+    .user-menu {
+      position: absolute;
+      bottom: 70px;
+      left: 12px;
+      right: 12px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      border: 1px solid #e2e8f0;
+      padding: 8px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px);
+      transition: all 0.22s ease;
+      z-index: 200;
+    }
+
+    .user-menu.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .user-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 11px 14px;
+      border: none;
+      background: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #ef4444;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-align: left;
+    }
+
+    .user-menu-item:hover {
+      background: #fef2f2;
+    }
+
+    .user-menu-item svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ========== APP LAYOUT ========== */
+    #appPage {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: white;
+      border-right: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 20px 24px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: #3b82f6;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-nav button {
+      background: none;
+      border: none;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .sidebar-nav button:hover {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    .sidebar-nav button.active {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .sidebar-nav button svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #16a34a;
+      background: #f0fdf4;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .status-badge .dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .sidebar-user:hover {
+      background: #f8fafc;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #3b82f6 url('/static/avatar.jpg') center/cover no-repeat;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 13px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .sidebar-user-info .name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .sidebar-user-info .role {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    /* Main content area */
+    .main-wrapper {
+      flex: 1;
+      margin-left: 240px;
+      min-height: 100vh;
+      background: #f5f7fb;
+    }
+
+    .main-content {
+      padding: 28px 32px;
+      max-width: 1280px;
+    }
+
+    /* Monitor 2-column layout */
+    .monitor-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+      align-items: stretch; /* 2 cột cao bằng nhau */
+    }
+
+    .monitor-left {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .monitor-left .card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0;
+    }
+
+    .monitor-left .chart-container {
+      flex: 1;
+      min-height: 260px;
+    }
+
+    .monitor-right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .monitor-right .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+
+    .devices-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* 3 card chia đều chiều cao = cột trái (metric + chart) */
+    .device-card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .device-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+
+    .device-top .device-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .device-switch-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .device-divider {
+      display: none;
+    }
+
+    .device-meta-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding-left: 42px;
+    }
+
+    .device-meta-block .meta {
+      font-size: 11px !important;
+      line-height: 1.35;
+    }
+
+    /* Profile page */
+    .profile-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+      min-height: calc(100vh - 140px);
+    }
+
+    .profile-links-panel {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .profile-links-panel h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 16px;
+    }
+
+    .profile-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .profile-link {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      text-decoration: none;
+      color: #1e293b;
+      transition: all 0.2s;
+      background: #fafbfc;
+      flex: 1;
+      min-height: 72px;
+    }
+
+    .profile-link:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+      color: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+
+    .profile-link-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .profile-link-icon.github {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .profile-link-icon.figma {
+      background: #fdf2f8;
+      color: #db2777;
+    }
+
+    .profile-link-icon.postman {
+      background: #fff7ed;
+      color: #ea580c;
+    }
+
+    .profile-link-icon.pdf {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .profile-link-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-link-text .title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .profile-link-text .desc {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .profile-link-arrow {
+      color: #cbd5e1;
+      font-size: 20px;
+    }
+
+    .profile-info-panel {
+      background: white;
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 8px;
+    }
+
+    .profile-photo {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: #e0f2fe url('/static/avatar.jpg') center/cover no-repeat;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 48px;
+      margin: 0 auto 8px;
+      box-shadow: 0 8px 28px rgba(59, 130, 246, 0.28);
+      border: 4px solid #eff6ff;
+      overflow: hidden;
+    }
+
+    .profile-info-panel h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+
+    .profile-info-panel .role {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+
+    .profile-info-list {
+      width: 100%;
+      text-align: left;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .profile-info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      padding: 14px 12px;
+      border-radius: 10px;
+      transition: background 0.15s;
+    }
+
+    .profile-info-item:hover {
+      background: #f8fafc;
+    }
+
+    .profile-info-item+.profile-info-item {
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .profile-info-item .label {
+      color: #94a3b8;
+      flex-shrink: 0;
+      font-size: 13px;
+    }
+
+    .profile-info-item .value {
+      color: #1e293b;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    @media (max-width: 900px) {
+      .profile-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1000px) {
+      .monitor-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .monitor-right {
+        position: static;
+      }
+    }
+
+    .page-header {
+      margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .page-header p {
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 16px;
+    }
+
+    .conn-status {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .conn-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .conn-item .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      flex-shrink: 0;
+    }
+    .conn-item.is-on { color: #16a34a; }
+    .conn-item.is-on .dot { background: #22c55e; }
+    .conn-item.is-off { color: #dc2626; }
+    .conn-item.is-off .dot { background: #ef4444; }
+    .badge-loading {
+      background: #fef3c7 !important;
+      color: #d97706 !important;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+
+    .metric-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .metric-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .metric-icon.temp {
+      background: #fff7ed;
+      color: #f97316;
+    }
+
+    .metric-icon.hum {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .metric-icon.light {
+      background: #fefce8;
+      color: #eab308;
+    }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.1;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .metric-unit {
+      font-size: 16px;
+      font-weight: 500;
+      color: #94a3b8;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 280px;
+    }
+
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .chart-legend span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chart-legend .lg-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* ===== CO2 ===== */
+    .monitor-left .co2-card {
+      flex: none;
+      margin-top: 16px;
+    }
+
+    .co2-head {
+      display: flex;
+      gap: 16px;
+      align-items: stretch;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .co2-box {
+      flex: 1 1 260px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      border-radius: 16px;
+      background: #f8fafc;
+      border: 2px solid transparent;
+    }
+
+    .co2-box .co2-status {
+      font-size: 12px;
+      margin-top: 4px;
+      color: #64748b;
+    }
+
+    .metric-icon.co2 {
+      background: #f5f3ff;
+      color: #8b5cf6;
+    }
+
+    .co2-box.co2-alert {
+      border-color: #ef4444;
+      animation: co2Blink 0.8s ease-in-out infinite;
+    }
+
+    .co2-box.co2-alert .metric-value,
+    .co2-box.co2-alert .co2-status {
+      color: #dc2626;
+    }
+
+    .co2-box.co2-alert .co2-status {
+      font-weight: 600;
+    }
+
+    @keyframes co2Blink {
+      0%, 100% { background: #f8fafc; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      50% { background: #fee2e2; box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.35); }
+    }
+
+    .co2-setting {
+      flex: 1 1 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .co2-setting label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #475569;
+    }
+
+    .co2-setting-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .co2-setting input {
+      width: 110px;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .co2-setting input:focus {
+      border-color: #3b82f6;
+    }
+
+    .co2-setting .hint {
+      font-size: 12px;
+      color: #94a3b8;
+      min-height: 16px;
+    }
+
+    .co2-setting .hint.err {
+      color: #ef4444;
+    }
+
+    .monitor-left .chart-container.co2-chart {
+      flex: none;
+      height: 200px;
+      min-height: 200px;
+    }
+
+    .device-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .device-icon svg { width: 18px; height: 18px; }
+    .device-text h3 { font-size: 14px !important; margin-bottom: 0 !important; }
+    .device-text .type { font-size: 11px !important; }
+    .badge-on, .badge-off, .badge-loading {
+      font-size: 11px !important;
+      padding: 4px 10px !important;
+    }
+    .device-icon.led3 {
+      background: #f5f3ff;
+      color: #7c3aed;
+    }
+    .device-icon.led3.is-on {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+    .device-icon.led3.is-off {
+      background: #f1f5f9;
+      color: #94a3b8;
+    }
+
+    .device-icon.light {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .device-icon.light.is-on {
+      background: #fef3c7;
+      color: #f59e0b;
+    }
+
+    .device-icon.light.is-off {
+      background: #f1f5f9;
+      color: #94a3b8;
+    }
+
+    .device-icon.fan {
+      background: #f0f9ff;
+      color: #0ea5e9;
+    }
+
+    .device-icon.fan.is-on {
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+
+    .device-icon.fan.is-off {
+      background: #f1f5f9;
+      color: #94a3b8;
+    }
+
+    .device-icon.is-loading {
+      background: #fef9c3;
+      color: #ca8a04;
+      animation: pulse-load 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse-load {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    .badge-loading {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ca8a04;
+      background: #fef9c3;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .device-text h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 2px;
+      color: #0f172a;
+    }
+
+    .device-text .type {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .device-meta-block .meta {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.45;
+    }
+
+    .badge-on {
+      font-size: 12px;
+      font-weight: 600;
+      color: #16a34a;
+      background: #f0fdf4;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .badge-off {
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      background: #f1f5f9;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 48px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: #e2e8f0;
+      border-radius: 28px;
+      transition: 0.25s;
+    }
+
+    .toggle .slider::before {
+      content: '';
+      position: absolute;
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.25s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    .toggle input:checked+.slider {
+      background: #3b82f6;
+    }
+
+    .toggle input:checked+.slider::before {
+      transform: translateX(20px);
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .filter-group label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748b;
+    }
+
+    .filter-group select,
+    .filter-group input {
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: white;
+      font-size: 14px;
+      outline: none;
+      min-width: 130px;
+    }
+
+    .filter-group input {
+      min-width: 200px;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+      border-color: #3b82f6;
+    }
+
+    .sensor-tabs {
+      display: flex;
+      gap: 4px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    .sensor-tabs button {
+      border: none;
+      background: transparent;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748b;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sensor-tabs button.active {
+      background: white;
+      color: #3b82f6;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-primary {
+      height: 40px;
+      padding: 0 18px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-ghost {
+      height: 40px;
+      padding: 0 14px;
+      background: white;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-ghost:hover {
+      background: #f8fafc;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .pagination-info {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .pagination-size {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .pagination-size select {
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid #e8edf5;
+      border-radius: 10px;
+      background: #f8fafc;
+      font-size: 13px;
+      color: #475569;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .pagination-size select:focus {
+      border-color: #60a5fa;
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pagination-btn {
+      min-width: 36px;
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid #e8edf5;
+      background: #f8fafc;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .pagination-btn:hover:not(:disabled):not(.active) {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: #334155;
+    }
+
+    .pagination-btn.active {
+      background: #60a5fa;
+      border-color: #60a5fa;
+      color: white;
+      cursor: default;
+      box-shadow: 0 2px 6px rgba(96, 165, 250, 0.35);
+    }
+
+    .pagination-btn:disabled:not(.active) {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .sort-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sort-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #64748b;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      padding: 0;
+    }
+
+    .sort-btn:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .sort-btn.active {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      color: #3b82f6;
+    }
+
+    th.sortable {
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    th.sortable:hover {
+      color: #3b82f6;
+    }
+
+    th.sortable .sort-indicator {
+      display: inline-block;
+      margin-left: 4px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    th.sortable.active .sort-indicator {
+      color: #3b82f6;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      text-align: left;
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748b;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    tbody td {
+      padding: 14px 16px;
+      font-size: 14px;
+      color: #1e293b;
+      border-bottom: 1px solid #f8fafc;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      #loginPage {
+        flex-direction: column;
+      }
+
+      .login-right {
+        width: 100%;
+      }
+
+      .login-left {
+        display: none;
+      }
+
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        width: 70px;
+      }
+
+      .sidebar-title,
+      .sidebar-user-info,
+      .status-badge span:not(.dot) {
+        display: none;
+      }
+
+      .sidebar-nav button span {
+        display: none;
+      }
+
+      .sidebar-nav button {
+        justify-content: center;
+        padding: 12px;
+      }
+
+      .main-wrapper {
+        margin-left: 70px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ==================== LOGIN PAGE ==================== -->
+  <div id="loginPage">
+    <div class="login-left">
+      <div class="classroom-preview">
+        <div class="classroom-img">
+          <svg width="100%" height="100%" viewBox="0 0 640 400" preserveAspectRatio="xMidYMid slice"
+            style="position:absolute;inset:0;">
+            <rect x="0" y="280" width="640" height="120" fill="#cbd5e1" />
+            <rect x="0" y="0" width="640" height="280" fill="#e0f2fe" />
+            <rect x="180" y="40" width="280" height="140" rx="8" fill="#94a3b8" />
+            <rect x="190" y="50" width="260" height="120" rx="4" fill="#f1f5f9" />
+            <rect x="80" y="240" width="100" height="50" rx="4" fill="#94a3b8" />
+            <rect x="220" y="240" width="100" height="50" rx="4" fill="#94a3b8" />
+            <rect x="360" y="240" width="100" height="50" rx="4" fill="#94a3b8" />
+            <rect x="500" y="240" width="100" height="50" rx="4" fill="#94a3b8" />
+            <rect x="40" y="60" width="80" height="100" rx="4" fill="#bfdbfe" />
+            <rect x="520" y="60" width="80" height="100" rx="4" fill="#bfdbfe" />
+          </svg>
+
+          <div class="sensor-bubble temp"><span class="dot"></span> Cảm biến nhiệt độ 28.5°C</div>
+          <div class="sensor-bubble humidity"><span class="dot"></span> Cảm biến độ ẩm 65%</div>
+          <div class="sensor-bubble co2"><span class="dot"></span> Cảm biến CO2 420 ppm</div>
+          <div class="sensor-bubble light"><span class="dot"></span> Cảm biến ánh sáng 350 lux</div>
+
+          <div class="center-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="4" />
+              <path
+                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="login-desc">
+          <h2>Hệ Thống Cảm Biến Phòng Học IoT</h2>
+          <p>Giám sát nhiệt độ, độ ẩm, CO2 và ánh sáng phòng học theo thời gian thực. Cải thiện môi trường học tập, tối
+            ưu điều hòa và tiết kiệm năng lượng.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-right">
+      <div class="login-logo">IoT</div>
+      <h1>Phòng Học IoT</h1>
+      <p>Giám sát cảm biến môi trường phòng học và tối ưu điều kiện học tập.</p>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Tên đăng nhập</label>
+          <div class="input-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <input type="text" id="username" placeholder="username"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();handleLogin(event);}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu</label>
+          <div class="input-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <input type="password" id="password" placeholder="password"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();handleLogin(event);}">
+          </div>
+        </div>
+        <button type="submit" class="btn-login">Đăng Nhập</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== APP PAGE ==================== -->
+  <div id="appPage">
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-logo">IoT</div>
+          <span class="sidebar-title">Phòng Học IoT</span>
+        </div>
+
+        <nav class="sidebar-nav">
+          <button class="active" onclick="showPage('monitor')" id="nav-monitor">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+            </svg>
+            <span>Giám sát</span>
+          </button>
+          <button onclick="showPage('sensor')" id="nav-sensor">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <span>Dữ liệu cảm biến</span>
+          </button>
+          <button onclick="showPage('history')" id="nav-history">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Lịch sử điều khiển</span>
+          </button>
+          <button onclick="showPage('profile')" id="nav-profile">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span>Profile</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="status-badge">
+            <span class="dot"></span>
+            <span>Đang cập nhật thực tế</span>
+          </div>
+
+          <div class="user-menu" id="userMenu" onclick="event.stopPropagation()">
+            <button class="user-menu-item" onclick="logout()">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                <path d="M16 17l5-5-5-5" />
+                <path d="M21 12H9" />
+              </svg>
+              Đăng xuất
+            </button>
+          </div>
+
+          <div class="sidebar-user" onclick="toggleUserMenu(event)" title="Tài khoản">
+            <div class="avatar"></div>
+            <div class="sidebar-user-info">
+              <div class="name">Nguyễn Minh Đức</div>
+              <div class="role">B23DCAT050</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <div class="main-wrapper">
+        <div class="main-content">
+
+          <!-- ===== MONITOR PAGE ===== -->
+          <div id="page-monitor">
+            <div class="page-header">
+              <h1>Giám sát phòng học</h1>
+              <p>Theo dõi nhiệt độ, độ ẩm và ánh sáng theo thời gian thực</p>
+            </div>
+
+            <div class="conn-status">
+              <div class="conn-item is-off" id="espStatus"><span class="dot"></span> ESP32: Đang kiểm tra...</div>
+              <div class="conn-item is-off" id="mqttStatus"><span class="dot"></span> MQTT Broker: Đang kiểm tra...</div>
+              <div style="margin-left:auto;font-size:13px;color:#94a3b8;">Cập nhật lần cuối: <span
+                  id="lastUpdate">29/08/2026 10:30:15</span></div>
+            </div>
+
+            <div class="monitor-layout">
+              <!-- Left: metrics + chart -->
+              <div class="monitor-left">
+                <div class="metrics-grid" id="metricsGrid"></div>
+
+                <div class="card">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <div class="card-title" style="margin:0;">Biến động cảm biến theo thời gian thực</div>
+                    <div class="chart-legend" id="chartLegend"></div>
+                  </div>
+                  <div class="chart-container">
+                    <canvas id="sensorChart"></canvas>
+                  </div>
+                </div>
+
+
+                <div class="card co2-card" id="co2Card">
+                  <div class="co2-head">
+                    <div class="co2-box" id="co2Box">
+                      <div class="metric-icon co2">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div class="metric-value" id="co2Value">— <span class="metric-unit" id="co2Unit">ppm</span></div>
+                        <div class="metric-label">CO2 mới nhất</div>
+                        <div class="co2-status" id="co2Status">Chưa có dữ liệu CO2</div>
+                      </div>
+                    </div>
+                    <div class="co2-setting">
+                      <label for="co2Threshold">Ngưỡng CO2 an toàn</label>
+                      <div class="co2-setting-row">
+                        <input type="text" id="co2Threshold" inputmode="decimal" autocomplete="off"
+                          onkeydown="if(event.key==='Enter')saveCo2Threshold()">
+                        <span class="metric-unit" id="co2ThrUnit" style="font-size:14px;">ppm</span>
+                        <button class="btn-primary" type="button" onclick="saveCo2Threshold()">Lưu</button>
+                      </div>
+                      <div class="hint" id="co2ThrHint">Vượt ngưỡng: box nháy đỏ và Đèn 1 nháy</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <div class="card-title" style="margin:0;">Biến động CO2 theo thời gian thực</div>
+                    <div class="chart-legend" style="margin:0;">
+                      <span><span class="lg-dot" id="co2LgDot" style="background:#8b5cf6"></span> <span id="co2LgName">CO2 (ppm)</span></span>
+                      <span><span class="lg-dot" style="background:#ef4444"></span> <span id="co2ThrLegend">Ngưỡng an toàn</span></span>
+                    </div>
+                  </div>
+                  <div class="chart-container co2-chart">
+                    <canvas id="co2Chart"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right: device controls vertical -->
+              <div class="monitor-right">
+                <div class="section-title">Điều khiển thiết bị</div>
+                <div class="devices-grid" id="devicesGrid"></div>
+                    <div class="device-meta-block">
+                    </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== SENSOR DATA PAGE ===== -->
+          <div id="page-sensor" class="hidden">
+            <div class="page-header">
+              <h1>Dữ liệu cảm biến</h1>
+              <p>Tra cứu dữ liệu các cảm biến theo loại cảm biến và thời gian</p>
+            </div>
+
+            <div class="filter-bar">
+              <div class="filter-group">
+                <label>Kiểu</label>
+                <select id="sensorTypeSelect" onchange="onSensorTypeChange(this.value)">
+                  <option value="all">Tất cả</option>
+                  <option value="temp">Nhiệt độ</option>
+                  <option value="hum">Độ ẩm</option>
+                  <option value="light">Ánh sáng</option>
+                  <option value="time">Thời gian</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label id="sensorSearchLabel">Giá trị</label>
+                <input type="text" id="sensorValueFilter" placeholder="Tìm theo giá trị"
+                  onkeydown="if(event.key==='Enter')searchSensor()">
+              </div>
+              <button class="btn-primary" onclick="searchSensor()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" />
+                </svg>
+                Tìm kiếm
+              </button>
+              <button class="btn-ghost" onclick="resetSensorFilter()" title="Xóa bộ lọc">
+                Đặt lại
+              </button>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Dữ liệu cảm biến</div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr id="sensorTableHead">
+                      <th>Kiểu</th>
+                      <th>Giá trị</th>
+                      <th>Đơn vị</th>
+                      <th>Thời gian ghi nhận</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sensorTableBody"></tbody>
+                </table>
+              </div>
+              <div class="pagination" id="sensorPagination"></div>
+            </div>
+          </div>
+
+          <!-- ===== HISTORY PAGE ===== -->
+          <div id="page-history" class="hidden">
+            <div class="page-header">
+              <h1>Lịch sử điều khiển thiết bị</h1>
+              <p>Xem lại các thao tác bật/tắt thiết bị đã thực hiện</p>
+            </div>
+
+            <div class="filter-bar">
+              <div class="filter-group">
+                <label>Thiết bị</label>
+                <select id="histDevice" onchange="searchHistory()">
+                  <option value="all">Tất cả thiết bị</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label>Thao tác</label>
+                <select id="histAction" onchange="searchHistory()">
+                  <option value="all">Tất cả thao tác</option>
+                  <option value="Bật">Bật</option>
+                  <option value="Tắt">Tắt</option>
+                  <option value="Tắt">Tắt</option>
+                  <option value="Tắt">Tắt</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label>Trạng thái</label>
+                <select id="histStatus" onchange="searchHistory()">
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value="ON">ON</option>
+                  <option value="OFF">OFF</opstion>
+                  <option value="LOADING">LOADING</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label>Thời gian</label>
+                <input type="text" id="histTime" placeholder="Tìm theo thời gian ghi nhận"
+                  onkeydown="if(event.key==='Enter')searchHistory()">
+              </div>
+              <button class="btn-primary" onclick="searchHistory()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" />
+                </svg>
+                Tìm kiếm
+              </button>
+              <button class="btn-ghost" onclick="resetHistoryFilter()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M1 4v6h6M23 20v-6h-6" />
+                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                </svg>
+                Đặt lại
+              </button>
+            </div>
+
+            <div class="card">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="sortable active" id="histIdHeader" onclick="setHistoryIdSort(historyIdSort==='asc'?'desc':'asc')" title="Sắp xếp theo ID">ID<span class="sort-indicator" id="histIdArrow"> ↓</span></th>
+                      <th>Người thực hiện</th>
+                      <th>Thiết bị</th>
+                      <th>Thao tác</th>
+                      <th>Trạng thái trước → sau</th>
+                      <th>Thời gian</th>
+                    </tr>
+                  </thead>
+                  <tbody id="historyTableBody"></tbody>
+                </table>
+              </div>
+              <div class="pagination" id="historyPagination"></div>
+            </div>
+          </div>
+
+          <!-- ===== PROFILE PAGE ===== -->
+          <div id="page-profile" class="hidden">
+            <div class="page-header">
+              <h1>Profile</h1>
+              <p>Thông tin cá nhân và các liên kết dự án</p>
+            </div>
+
+            <div class="profile-layout">
+              <!-- Left: photo + info -->
+              <div class="profile-info-panel">
+                <div class="profile-photo"></div>
+                <h2>Nguyễn Minh Đức</h2>
+                <div class="role">B23DCAT050 · Phòng Học IoT</div>
+                <div class="profile-info-list">
+                  <div class="profile-info-item">
+                    <span class="label">MSSV</span>
+                    <span class="value">B23DCAT050</span>
+                  </div>
+                  <div class="profile-info-item">
+                    <span class="label">Họ tên</span>
+                    <span class="value">Nguyễn Minh Đức</span>
+                  </div>
+                  <div class="profile-info-item">
+                    <span class="label">Dự án</span>
+                    <span class="value">Phòng Học IoT</span>
+                  </div>
+                  <div class="profile-info-item">
+                    <span class="label">Trạng thái</span>
+                    <span class="value" style="color:#16a34a;">Đang hoạt động</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right: links -->
+              <div class="profile-links-panel">
+                <h3>Liên kết dự án</h3>
+                <div class="profile-links">
+                  <a class="profile-link" href="https://github.com" target="_blank" rel="noopener">
+                    <div class="profile-link-icon github">
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                          d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                      </svg>
+                    </div>
+                    <div class="profile-link-text">
+                      <div class="title">GitHub</div>
+                      <div class="desc">Mã nguồn dự án IoT Classroom</div>
+                    </div>
+                    <span class="profile-link-arrow">→</span>
+                  </a>
+
+                  <a class="profile-link"
+                    href="https://www.figma.com/design/pesYfuSQjIpbOhF4dhA52f/Untitled?m=auto&t=vo33tlooM1zEXhEe-6"
+                    target="_blank" rel="noopener">
+                    <div class="profile-link-icon figma">
+                      <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                          d="M5 5.5A3.5 3.5 0 018.5 2H12v7H8.5A3.5 3.5 0 015 5.5zM12 2h3.5A3.5 3.5 0 0119 5.5 3.5 3.5 0 0115.5 9H12V2zm0 7h3.5a3.5 3.5 0 110 7H12V9zm-3.5 7H12v3.5a3.5 3.5 0 11-3.5-3.5zM5 12.5A3.5 3.5 0 018.5 9H12v7H8.5A3.5 3.5 0 015 12.5z" />
+                      </svg>
+                    </div>
+                    <div class="profile-link-text">
+                      <div class="title">Figma</div>
+                      <div class="desc">Thiết kế giao diện UI/UX</div>
+                    </div>
+                    <span class="profile-link-arrow">→</span>
+                  </a>
+
+                  <a class="profile-link" href="https://www.postman.com" target="_blank" rel="noopener">
+                    <div class="profile-link-icon postman">
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                          d="M13.527.099C6.955-.744.053 4.613.002 11.19c-.063 8.134 9.117 12.288 14.812 9.393.321-.163.11-.61-.214-.521-4.416 1.209-9.397-1.139-10.87-5.5a9.08 9.08 0 01.97-8.877C7.633 2.795 13.423 2.485 13.527.099zM18.99 5.22a4.078 4.078 0 00-2.87 1.222l-.022.022a3.74 3.74 0 00-.578.69 3.992 3.992 0 00-1.005 2.393 3.992 3.992 0 003.986 3.986 3.992 3.992 0 003.986-3.986 3.993 3.993 0 00-3.497-3.327z" />
+                      </svg>
+                    </div>
+                    <div class="profile-link-text">
+                      <div class="title">Postman</div>
+                      <div class="desc">API collection &amp; testing</div>
+                    </div>
+                    <span class="profile-link-arrow">→</span>
+                  </a>
+
+                  <a class="profile-link" href="/static/Báo cáo.pdf" download>
+                    <div class="profile-link-icon pdf">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+                      </svg>
+                    </div>
+                    <div class="profile-link-text">
+                      <div class="title">Báo cáo PDF</div>
+                      <div class="desc">Tải file báo cáo dự án Phòng Học IoT</div>
+                    </div>
+                    <span class="profile-link-arrow">↓</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end main-content -->
+      </div><!-- end main-wrapper -->
+    </div><!-- end app-layout -->
+  </div><!-- end appPage -->
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8000/api';
+    // path trên thanh địa chỉ (không phải API)
+    var PAGE_TO_PATH = {
+      login: '/login',
+      monitor: '/dashboard',
+      sensor: '/data',
+      history: '/history',
+      profile: '/profile'
+    };
+    var PATH_TO_PAGE = {
+      '/': 'monitor',
+      '/login': 'login',
+      '/dashboard': 'monitor',
+      '/data': 'sensor',
+      '/history': 'history',
+      '/profile': 'profile'
+    };
+
+    function navigateTo(page, replace) {
+      var p = PAGE_TO_PATH[page] || '/dashboard';
+      if (replace) history.replaceState({ page: page }, '', p);
+      else history.pushState({ page: page }, '', p);
+    }
+
+    var deviceIdMap = { light: null, fan: null, led3: null };
+    var latestPollTimer = null;
+
+    function getToken() {
+      return localStorage.getItem('access_token') || '';
+    }
+
+    function authHeaders() {
+      var h = { 'Content-Type': 'application/json' };
+      var t = getToken();
+      if (t) h['Authorization'] = 'Bearer ' + t;
+      return h;
+    }
+
+    async function api(path, options) {
+      options = options || {};
+      var res = await fetch(API_BASE + path, Object.assign({}, options, {
+        headers: Object.assign({}, authHeaders(), options.headers || {})
+      }));
+      var data = {};
+      try { data = await res.json(); } catch (e) {}
+      if (res.status === 401) {
+        logout();
+        throw new Error('Hết phiên đăng nhập');
+      }
+      if (!res.ok) {
+        var msg = data.message;
+        if (typeof msg !== 'string') msg = (msg && JSON.stringify(msg)) || ('Lỗi ' + res.status);
+        throw new Error(msg);
+      }
+      return data;
+    }
+
+    function formatDt(iso) {
+  if (!iso) return '—';
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return String(iso);
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+    + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+}
+    // ===== Danh mục cảm biến (do admin thêm trong trang quản trị) =====
+    var SENSOR_CATALOG_PATH = '/sensors';   // GET → { data: [{code,name,measure,unit,color}] }
+    var FALLBACK_CATALOG = [                // dùng khi API catalog lỗi / chưa có cảm biến nào
+      { code: 'temperature', name: 'Nhiệt độ', measure: 'Nhiệt độ', unit: '°C', color: '#f97316' },
+      { code: 'humidity', name: 'Độ ẩm', measure: 'Độ ẩm', unit: '%', color: '#3b82f6' },
+      { code: 'light', name: 'Ánh sáng', measure: 'Ánh sáng', unit: 'lux', color: '#eab308' },
+      { code: 'co2', name: 'CO2', measure: 'Nồng độ CO2', unit: 'ppm', color: '#8b5cf6' }
+    ];
+    var CHART_SCALE = { light: 10 };        // ánh sáng ÷ 10 để cùng thang với nhiệt độ/độ ẩm
+    var sensorCatalog = FALLBACK_CATALOG.slice();
+    var sensorByCode = {};
+    var catalogPromise = null;
+    var lastCatalogFetch = 0;
+    var DEDICATED_CODES = { co2: true };    // cảm biến có khu vực riêng (box + biểu đồ riêng)
+
+    // Cảm biến hiển thị ở thẻ chung + biểu đồ chung (loại trừ cảm biến có khu vực riêng)
+    function mainSensors() {
+      return sensorCatalog.filter(function (s) { return !DEDICATED_CODES[s.code]; });
+    }
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function indexCatalog() {
+      sensorByCode = {};
+      sensorCatalog.forEach(function (s) { sensorByCode[s.code] = s; });
+    }
+    indexCatalog();
+
+    async function loadSensorCatalog() {
+      lastCatalogFetch = Date.now();
+      var rows = [];
+      try {
+        var res = await api(SENSOR_CATALOG_PATH);
+        rows = (res && res.data) || [];
+      } catch (e) {
+        console.warn('sensor catalog', e);
+      }
+      // Luôn có sẵn các cảm biến gốc; catalog từ admin ghi đè thông tin và bổ sung cảm biến mới
+      var byCode = {};
+      FALLBACK_CATALOG.forEach(function (s) { byCode[s.code] = Object.assign({}, s); });
+      rows.forEach(function (s) { byCode[s.code] = Object.assign({}, byCode[s.code] || {}, s); });
+      sensorCatalog = Object.keys(byCode).map(function (k) { return byCode[k]; });
+      sensorCatalog.forEach(function (s) { if (!s.color) s.color = '#3b82f6'; });
+      indexCatalog();
+    }
+
+    function ensureCatalog(force) {
+      if (force || !catalogPromise) catalogPromise = loadSensorCatalog();
+      return catalogPromise;
+    }
+
+    function sensorTypeLabel(t) {
+      if (sensorByCode[t]) return sensorByCode[t].name;
+      if (t === 'temperature') return 'Nhiệt độ';
+      if (t === 'humidity') return 'Độ ẩm';
+      if (t === 'light') return 'Ánh sáng';
+      return t || '';
+    }
+
+    function sensorUnit(t) {
+      if (sensorByCode[t]) return sensorByCode[t].unit || '';
+      if (t === 'temperature') return '°C';
+      if (t === 'humidity') return '%';
+      if (t === 'light') return 'lux';
+      return '';
+    }
+
+    function hexBg(hex, a) {
+      var m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+      if (!m) return 'rgba(59,130,246,' + a + ')';
+      var n = parseInt(m[1], 16);
+      return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+    }
+
+    // ----- Trang giám sát: thẻ số liệu + chú thích + biểu đồ dựng từ catalog -----
+    var ICON_PATHS = {
+      temperature: '<path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />',
+      humidity: '<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />',
+      light: '<circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />'
+    };
+    var ICON_GENERIC = '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />';
+    var metricEls = {};
+    var chartCodes = [];
+    var monitorSig = '';
+
+    function monitorVisible() {
+      var mon = document.getElementById('page-monitor');
+      return !!mon && !mon.classList.contains('hidden');
+    }
+
+    function renderMetricCards() {
+      var grid = document.getElementById('metricsGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      metricEls = {};
+      mainSensors().forEach(function (s) {
+        var card = document.createElement('div');
+        card.className = 'metric-card';
+        if (s.measure) card.title = s.measure;
+
+        var icon = document.createElement('div');
+        icon.className = 'metric-icon';
+        icon.style.background = hexBg(s.color, 0.12);
+        icon.style.color = s.color;
+        icon.innerHTML = '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
+          (ICON_PATHS[s.code] || ICON_GENERIC) + '</svg>';
+
+        var box = document.createElement('div');
+        var val = document.createElement('div');
+        val.className = 'metric-value';
+        val.appendChild(document.createTextNode('— '));
+        var unit = document.createElement('span');
+        unit.className = 'metric-unit';
+        unit.textContent = s.unit || '';
+        val.appendChild(unit);
+        var label = document.createElement('div');
+        label.className = 'metric-label';
+        label.textContent = s.name;
+
+        box.appendChild(val);
+        box.appendChild(label);
+        card.appendChild(icon);
+        card.appendChild(box);
+        grid.appendChild(card);
+        metricEls[s.code] = val;
+      });
+    }
+
+    function renderLegend() {
+      var el = document.getElementById('chartLegend');
+      if (!el) return;
+      el.innerHTML = '';
+      mainSensors().forEach(function (s) {
+        var k = CHART_SCALE[s.code];
+        var extra = (s.unit || '') + (k ? (s.unit ? ' ' : '') + '÷ ' + k : '');
+        var span = document.createElement('span');
+        var dot = document.createElement('span');
+        dot.className = 'lg-dot';
+        dot.style.background = s.color;
+        span.appendChild(dot);
+        span.appendChild(document.createTextNode(' ' + s.name + (extra ? ' (' + extra + ')' : '')));
+        el.appendChild(span);
+      });
+    }
+
+    // Dựng lại thẻ + chú thích + biểu đồ khi danh sách cảm biến thay đổi
+    function setupMonitor() {
+      if (!document.getElementById('sensorChart')) return;
+      var sig = sensorCatalog.map(function (s) {
+        return [s.code, s.name, s.unit, s.color].join('|');
+      }).join(';');
+      if (sig === monitorSig && chart) return;
+      monitorSig = sig;
+      renderMetricCards();
+      renderLegend();
+      initChart();
+      initCo2Panel();
+    }
+
+    // ----- Trang dữ liệu cảm biến: ô chọn kiểu dựng từ catalog -----
+    function renderSensorTypeSelect() {
+      var sel = document.getElementById('sensorTypeSelect');
+      if (!sel) return;
+      var cur = sel.value || currentSensorFilter || 'all';
+      var html = '<option value="all">Tất cả</option>';
+      sensorCatalog.forEach(function (s) {
+        html += '<option value="' + esc(s.code) + '">' + esc(s.name) + '</option>';
+      });
+      html += '<option value="time">Thời gian</option>';
+      sel.innerHTML = html;
+      var ok = Array.prototype.some.call(sel.options, function (o) { return o.value === cur; });
+      sel.value = ok ? cur : 'all';
+      currentSensorFilter = sel.value;
+    }
+
+    // ===== CO2: box mới nhất + biểu đồ + ngưỡng an toàn + cảnh báo nháy box / nháy LED =====
+    var CO2_DEFAULT_THRESHOLD = 80;
+    var CO2_MAX_POINTS = 20;
+    var co2Threshold = CO2_DEFAULT_THRESHOLD;
+    try {
+      var _savedThr = parseFloat(localStorage.getItem('co2_threshold'));
+      if (!isNaN(_savedThr) && _savedThr >= 0) co2Threshold = _savedThr;
+    } catch (e) {}
+    var co2Chart = null;
+    var co2LastKey = '';
+    var co2Last = null;       // { v: số | null, fresh: true/false }
+    var co2LedOn = false;     // đang yêu cầu server nháy đèn
+    var co2KeepTimer = null;
+
+    function co2Meta() {
+      return sensorByCode.co2 || { name: 'CO2', unit: 'ppm', color: '#8b5cf6' };
+    }
+
+    function initCo2Chart() {
+      var canvas = document.getElementById('co2Chart');
+      if (!canvas) return;
+      if (co2Chart) { co2Chart.destroy(); co2Chart = null; }
+      co2LastKey = '';
+      var m = co2Meta();
+      co2Chart = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: m.name, data: [], borderColor: m.color, backgroundColor: hexBg(m.color, 0.08),
+              tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 0, borderWidth: 2, spanGaps: true
+            },
+            {
+              label: 'Ngưỡng an toàn', data: [], borderColor: '#ef4444', borderDash: [6, 4],
+              borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11 } } },
+            y: { min: 0, suggestedMax: 110, grid: { color: '#f1f5f9' }, ticks: { color: '#94a3b8', font: { size: 11 } } }
+          },
+          interaction: { mode: 'index', intersect: false }
+        }
+      });
+    }
+
+    // Vẽ lại đường ngưỡng + chú thích theo ngưỡng hiện tại
+    function refreshCo2Chart() {
+      var lg = document.getElementById('co2ThrLegend');
+      if (lg) lg.textContent = 'Ngưỡng an toàn (' + co2Threshold + ' ' + (co2Meta().unit || '') + ')';
+      if (!co2Chart) return;
+      var d1 = co2Chart.data.datasets[1].data;
+      for (var i = 0; i < d1.length; i++) d1[i] = co2Threshold;
+      co2Chart.options.scales.y.suggestedMax = Math.max(110, Math.ceil(co2Threshold * 1.2));
+      co2Chart.update('none');
+    }
+
+    function initCo2Panel() {
+      var m = co2Meta();
+      var input = document.getElementById('co2Threshold');
+      if (input && document.activeElement !== input) input.value = String(co2Threshold);
+      ['co2Unit', 'co2ThrUnit'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = m.unit || '';
+      });
+      var dot = document.getElementById('co2LgDot');
+      if (dot) dot.style.background = m.color;
+      var nm = document.getElementById('co2LgName');
+      if (nm) nm.textContent = m.name + (m.unit ? ' (' + m.unit + ')' : '');
+      initCo2Chart();
+      refreshCo2Chart();
+      evaluateCo2Alarm();
+    }
+
+    function updateCo2(vals, rec) {
+      var v = vals.co2;
+      var has = v !== undefined && !isNaN(v);
+      co2Last = { v: has ? v : null, fresh: has && isFreshRecordedAt(rec, 5000) };
+      if (!monitorVisible()) return;
+
+      var valEl = document.getElementById('co2Value');
+      if (valEl && valEl.firstChild) valEl.firstChild.nodeValue = (has ? v : '—') + ' ';
+
+      if (co2Chart && has) {
+        var key = v + '|' + rec;
+        if (key !== co2LastKey) {      // mỗi bản ghi chỉ vẽ 1 lần
+          co2LastKey = key;
+          var ts = rec ? formatDt(rec) : formatDt(new Date().toISOString());
+          co2Chart.data.labels.push(ts.split(' ').pop());
+          co2Chart.data.datasets[0].data.push(v);
+          co2Chart.data.datasets[1].data.push(co2Threshold);
+          while (co2Chart.data.labels.length > CO2_MAX_POINTS) {
+            co2Chart.data.labels.shift();
+            co2Chart.data.datasets[0].data.shift();
+            co2Chart.data.datasets[1].data.shift();
+          }
+          co2Chart.update('none');
+        }
+      }
+      evaluateCo2Alarm();
+    }
+
+    // Chỉ cảnh báo khi dữ liệu CO2 còn mới (≤ 5s) và vượt ngưỡng
+    function evaluateCo2Alarm() {
+      var L = co2Last;
+      var unit = co2Meta().unit || '';
+      var over = !!(L && L.v !== null && L.fresh && L.v > co2Threshold);
+      setCo2Alarm(over);
+      var st = document.getElementById('co2Status');
+      if (!st) return;
+      if (!L || L.v === null) st.textContent = 'Chưa có dữ liệu CO2';
+      else if (!L.fresh) st.textContent = 'Mất dữ liệu CO2 từ mạch';
+      else if (over) st.textContent = '⚠ Vượt ngưỡng an toàn (' + co2Threshold + ' ' + unit + ')';
+      else st.textContent = 'An toàn (ngưỡng ' + co2Threshold + ' ' + unit + ')';
+    }
+
+    function setCo2Alarm(on) {
+      var box = document.getElementById('co2Box');
+      if (box) box.classList.toggle('co2-alert', on);
+      if (on) startLedBlink(); else stopLedBlink();
+    }
+
+    // Rời trang giám sát / đăng xuất → tắt cảnh báo + dừng nháy đèn
+    function stopCo2Alarm() {
+      var box = document.getElementById('co2Box');
+      if (box) box.classList.remove('co2-alert');
+      stopLedBlink();
+    }
+
+    function saveCo2Threshold() {
+      var input = document.getElementById('co2Threshold');
+      var hint = document.getElementById('co2ThrHint');
+      if (!input || !hint) return;
+      var raw = (input.value || '').trim().replace(',', '.');
+      var n = Number(raw);
+      if (raw === '' || !isFinite(n) || n < 0) {
+        hint.className = 'hint err';
+        hint.textContent = 'Vui lòng nhập một số ≥ 0';
+        return;
+      }
+      co2Threshold = n;
+      try { localStorage.setItem('co2_threshold', String(n)); } catch (e) {}
+      input.value = String(n);
+      hint.className = 'hint';
+      hint.textContent = 'Đã lưu ngưỡng ' + n + ' ' + (co2Meta().unit || '');
+      refreshCo2Chart();
+      evaluateCo2Alarm();
+    }
+
+    // ----- Nháy LED "Đèn 4" qua backend -----
+    function findLed4() {
+      var list = (typeof devicesCache !== 'undefined' && devicesCache) ? devicesCache : [];
+      var re = /(đèn|den|led|light)\s*0?4(?!\d)/i;
+      var i, name;
+      for (i = 0; i < list.length; i++) {
+        name = String(list[i].name || '').normalize('NFC');
+        if (re.test(name)) return list[i].id;
+      }
+      for (i = 0; i < list.length; i++) {
+        if (String(list[i].type || '').toUpperCase() === 'LIGHT') return list[i].id;
+      }
+      return list.length ? list[0].id : null;
+    }
+
+    function ledBlinkRequest(on) {
+      var id = findLed4();
+      if (!id) return Promise.resolve(false);
+      return api('/devices/' + id + '/blink', { method: 'POST', body: JSON.stringify({ on: on }) })
+        .then(function () { return true; })
+        .catch(function (e) { console.warn('blink', e); return false; });
+    }
+
+    function startLedBlink() {
+      if (co2LedOn || !findLed4()) return;      // chưa có danh sách thiết bị → thử lại ở lần poll sau
+      co2LedOn = true;
+      ledBlinkRequest(true);
+      if (co2KeepTimer) clearInterval(co2KeepTimer);
+      // keepalive: server tự dừng nháy nếu 30s không nhận được
+      co2KeepTimer = setInterval(function () { ledBlinkRequest(true); }, 10000);
+    }
+
+    function stopLedBlink() {
+      if (!co2LedOn) return;
+      co2LedOn = false;
+      if (co2KeepTimer) { clearInterval(co2KeepTimer); co2KeepTimer = null; }
+      ledBlinkRequest(false);
+    }
+
+    function actionLabel(a) {
+      if (a === 'ON' || a === 'Bật') return 'Bật';
+      if (a === 'OFF' || a === 'Tắt') return 'Tắt';
+      if (a === 'BLINK_ON') return 'Nháy cảnh báo CO2';
+      if (a === 'BLINK_OFF') return 'Dừng nháy';
+      return a || '';
+    }
+
+    let currentSensorFilter = 'all';
+    let chart = null;
+
+    // Pagination state
+    let SENSOR_PAGE_SIZE = 6;
+    let HISTORY_PAGE_SIZE = 5;
+    let sensorPage = 1;
+    let historyPage = 1;
+    let sensorFilteredRows = [];
+    let historyFilteredData = [];
+    let sensorTimeSort = 'desc'; // 'desc' = mới nhất trước, 'asc' = cũ nhất trước
+    let sensorIdSort = null; // null = không sort ID, 'asc' | 'desc'
+    let sensorTimeClickFilter = '';
+    let sensorSearchApplied = false;
+    let historyIdSort = 'desc'; // sắp xếp ID lịch sử
+
+    async function handleLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+
+  try {
+    const res = await fetch(API_BASE + '/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      alert(typeof data.message === 'string' ? data.message : 'Đăng nhập thất bại');
+      return;
+    }
+    localStorage.setItem('access_token', data.data.access_token);
+    localStorage.setItem('user', JSON.stringify(data.data.user));
+    applyUserToUI(data.data.user);
+
+    startLatestPoll();
+    showPage('monitor', { replace: true });
+  } catch (err) {
+    alert('Không kết nối được server: ' + err.message);
+  }
+}
+
+    function applyUserToUI(user) {
+      if (!user) return;
+      var nameEl = document.querySelector('.sidebar-user-info .name');
+      if (nameEl) nameEl.textContent = user.full_name || user.username || '';
+      var profileName = document.querySelector('.profile-info-panel h2');
+      if (profileName) profileName.textContent = user.full_name || user.username || '';
+    }
+
+    var lastSensorDataAt = 0;
+    var lastRecordedAtSeen = null;
+    var sensorStaleModalShown = false;
+    var sensorWatchTimer = null;
+
+    function isFreshRecordedAt(iso, maxAgeMs) {
+      if (!iso) return false;
+      var t = new Date(iso).getTime();
+      if (isNaN(t)) return false;
+      return (Date.now() - t) <= (maxAgeMs || 5000);
+    }
+
+    function setEspStatus(ok) {
+      var el = document.getElementById('espStatus');
+      if (!el) return;
+      if (ok) {
+        el.classList.remove('is-off');
+        el.classList.add('is-on');
+        el.innerHTML = '<span class="dot"></span> ESP32: Đang kết nối';
+      } else {
+        el.classList.remove('is-on');
+        el.classList.add('is-off');
+        el.innerHTML = '<span class="dot"></span> ESP32: Mất kết nối';
+      }
+    }
+
+    function setMqttStatus(ok) {
+      var el = document.getElementById('mqttStatus');
+      if (!el) return;
+      if (ok) {
+        el.classList.remove('is-off');
+        el.classList.add('is-on');
+        el.innerHTML = '<span class="dot"></span> MQTT Broker: Đang kết nối';
+      } else {
+        el.classList.remove('is-on');
+        el.classList.add('is-off');
+        el.innerHTML = '<span class="dot"></span> MQTT Broker: Mất kết nối';
+      }
+    }
+
+    function showAlertBox(message, onOk) {
+      var old = document.getElementById('appAlertModal');
+      if (old) old.remove();
+      var wrap = document.createElement('div');
+      wrap.id = 'appAlertModal';
+      wrap.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+      wrap.innerHTML =
+        '<div style="background:#fff;border-radius:16px;padding:24px 28px;max-width:380px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.15);text-align:center;">' +
+          '<p style="font-size:15px;color:#1e293b;line-height:1.55;margin:0 0 20px;">' + message + '</p>' +
+          '<button type="button" id="appAlertOk" style="min-width:110px;height:42px;border:none;border-radius:10px;background:#3b82f6;color:#fff;font-weight:600;font-size:14px;cursor:pointer;">OK</button>' +
+        '</div>';
+      document.body.appendChild(wrap);
+      document.getElementById('appAlertOk').onclick = function () {
+        wrap.remove();
+        if (typeof onOk === 'function') onOk();
+      };
+    }
+
+    function startSensorWatch() {
+      if (sensorWatchTimer) clearInterval(sensorWatchTimer);
+      sensorWatchTimer = setInterval(function () {
+        if (typeof getToken === 'function' && !getToken()) return;
+        var mon = document.getElementById('page-monitor');
+        if (mon && mon.classList.contains('hidden')) return;
+        if (lastSensorDataAt && Date.now() - lastSensorDataAt > 5000 && !sensorStaleModalShown) {
+          sensorStaleModalShown = true;
+          setEspStatus(false);
+          showAlertBox('Không nhận được dữ liệu từ mạch.', function () {
+            setEspStatus(false);
+          });
+        } else if (!lastSensorDataAt && !sensorStaleModalShown) {
+          // F5 chưa từng có data mới: sau 5s cũng đỏ + box
+          // dùng mốc startLatestPoll gán lastSensorDataAt = Date.now() tạm? → dùng 0 + first poll time
+        }
+      }, 1000);
+    }
+
+    function startLatestPoll() {
+      if (latestPollTimer) clearInterval(latestPollTimer);
+      setEspStatus(false);
+      setMqttStatus(false);
+      lastSensorDataAt = Date.now(); // mốc: nếu 5s không có recorded_at mới → báo
+      lastRecordedAtSeen = null;
+      sensorStaleModalShown = false;
+
+      loadLatestSensors();
+      latestPollTimer = setInterval(function () {
+        var mon = document.getElementById('page-monitor');
+        if (mon && !mon.classList.contains('hidden')) {
+          loadLatestSensors();
+        }
+      }, 2000);
+      startSensorWatch();
+    }
+
+    var lastChartKey = '';
+
+    async function loadLatestSensors() {
+      try {
+        var res = await api('/dashboard');
+        var d = res.data;
+        if (!d) {
+          setEspStatus(false);
+          return;
+        }
+        await ensureCatalog();
+
+        // Giá trị mới nhất theo từng cảm biến: d.values[code].value
+        var vals = {};
+        var dv = d.values || {};
+        Object.keys(dv).forEach(function (code) {
+          var item = dv[code];
+          vals[code] = parseFloat(item && typeof item === 'object' ? item.value : item);
+        });
+
+        // Có cảm biến mới mà catalog chưa biết → nạp lại catalog (tối đa 10 giây/lần)
+        var hasUnknown = Object.keys(dv).some(function (c) { return !sensorByCode[c]; });
+        if (hasUnknown && Date.now() - lastCatalogFetch > 10000) {
+          await ensureCatalog(true);
+        }
+
+        // Tương thích backend cũ: 3 trường temperature / humidity / light_level
+        [['temperature', 'temperature'], ['humidity', 'humidity'], ['light', 'light_level']].forEach(function (p) {
+          if (!sensorByCode[p[0]]) return;
+          if (vals[p[0]] === undefined || isNaN(vals[p[0]])) {
+            var x = parseFloat(d[p[1]]);
+            if (!isNaN(x)) vals[p[0]] = x;
+          }
+        });
+
+        var hasAny = sensorCatalog.some(function (s) {
+          return vals[s.code] !== undefined && !isNaN(vals[s.code]);
+        });
+        if (!hasAny) return;
+
+        var rec = d.recorded_at ? String(d.recorded_at) : '';
+
+        // F5 / poll: chỉ XANH khi recorded_at còn mới ≤ 5 giây
+        if (isFreshRecordedAt(rec, 5000)) {
+          lastRecordedAtSeen = rec;
+          lastSensorDataAt = Date.now();
+          sensorStaleModalShown = false;
+          setEspStatus(true);
+          setMqttStatus(true);
+        } else {
+          // Bản ghi cũ (đã rút mạch) → đỏ
+          setEspStatus(false);
+        }
+
+        if (monitorVisible()) {
+          setupMonitor();
+          sensorCatalog.forEach(function (s) {
+            var el = metricEls[s.code];
+            if (!el) return;
+            var v = vals[s.code];
+            el.firstChild.nodeValue = ((v === undefined || isNaN(v)) ? '—' : v) + ' ';
+          });
+        }
+
+        var timeStr = formatDt(d.recorded_at);
+        if (!timeStr || timeStr === '—') {
+          timeStr = formatDt(new Date().toISOString());
+        }
+        var lu = document.getElementById('lastUpdate');
+        if (lu) lu.textContent = timeStr;
+
+        pushChartPoint(vals, timeStr);
+        updateCo2(vals, dv.co2 && dv.co2.recorded_at ? String(dv.co2.recorded_at) : '');
+      } catch (e) {
+        console.warn('latest sensors', e);
+        setEspStatus(false);
+      }
+    }
+
+    function pushChartPoint(vals, timeStr) {
+      if (!chart) return;
+      // key theo giây để không vẽ trùng cùng một bản ghi
+      var key = chartCodes.map(function (c) { return vals[c]; }).join('|') + '|' + (timeStr || '');
+      if (key === lastChartKey) return;
+      lastChartKey = key;
+
+      var label = '';
+      if (timeStr && timeStr.indexOf(' ') >= 0) {
+        label = timeStr.split(' ').pop(); // HH:MM:SS
+      } else {
+        label = new Date().toLocaleTimeString('vi-VN', {
+          hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+      }
+
+      chart.data.labels.push(label);
+      chart.data.datasets.forEach(function (ds, i) {
+        var c = chartCodes[i];
+        var v = vals[c];
+        ds.data.push((v === undefined || isNaN(v)) ? null : v / (CHART_SCALE[c] || 1));
+      });
+
+      // giữ tối đa 12 điểm
+      while (chart.data.labels.length > 12) {
+        chart.data.labels.shift();
+        chart.data.datasets.forEach(function (ds) { ds.data.shift(); });
+      }
+
+      // scale Y theo data
+      var all = [];
+      chart.data.datasets.forEach(function (ds) {
+        ds.data.forEach(function (v) { if (v !== null) all.push(v); });
+      });
+      if (all.length) {
+        var ymin = Math.min.apply(null, all);
+        var ymax = Math.max.apply(null, all);
+        var pad = Math.max(5, (ymax - ymin) * 0.15);
+        chart.options.scales.y.min = Math.floor(ymin - pad);
+        chart.options.scales.y.max = Math.ceil(ymax + pad);
+      }
+      chart.update('none');
+    }
+
+    var ICONS = {
+      lightOn: '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>',
+      lightOff: '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4"/><path d="M12 2v1M12 6a6 6 0 0 1 4 10.5V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-.5A6 6 0 0 1 12 6z"/></svg>',
+      fanOn: '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-3.31 0-6 1.79-6 4v1h12v-1c0-2.21-2.69-4-6-4z" opacity=".3"/><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+      fanOff: '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 12c0-3 2-5 4-5s4 2 4 5-2 5-4 5-4-2-4-5z"/><path d="M12 12c0 3-2 5-4 5s-4-2-4-5 2-5 4-5 4 2 4 5z"/><path d="M12 12c3 0 5-2 5-4s-2-4-5-4-5 2-5 4 2 4 5 4z"/><circle cx="12" cy="12" r="2"/></svg>',
+      loading: '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>'
+    };
+
+    function setDeviceIcon(device, state) {
+      var el = document.getElementById(device + 'Icon');
+      if (!el) return;
+      el.classList.remove('is-on', 'is-off', 'is-loading');
+      if (state === 'loading') {
+        el.classList.add('is-loading');
+        el.innerHTML = ICONS.loading;
+      } else if (device === 'light' || device === 'led3') {
+        el.classList.add(state === 'on' ? 'is-on' : 'is-off');
+        el.innerHTML = state === 'on' ? ICONS.lightOn : ICONS.lightOff;
+      } else {
+        el.classList.add(state === 'on' ? 'is-on' : 'is-off');
+        el.innerHTML = state === 'on' ? ICONS.fanOn : ICONS.fanOff;
+      }
+    }
+
+    async function loadDevices() {
+      try {
+        var res = await api('/devices');
+        var list = res.data || [];
+        console.log('[devices]', list);
+        list.forEach(function (dev, idx) {
+          var name = (dev.name || '').toLowerCase();
+          var typ = (dev.type || '').toUpperCase();
+          var key = null;
+          if (name.indexOf('quạt') >= 0 || name.indexOf('quat') >= 0 || typ === 'FAN') key = 'fan';
+          else if (name.indexOf('led 3') >= 0 || name.indexOf('led3') >= 0 || name === 'led 3') key = 'led3';
+          else if (name.indexOf('đèn') >= 0 || name.indexOf('den') >= 0 || name.indexOf('light') >= 0 || typ === 'LIGHT') key = 'light';
+          // fallback theo thứ tự: 1=light, 2=fan, 3=led3
+          if (!key && idx === 0) key = 'light';
+          if (!key && idx === 1) key = 'fan';
+          if (!key && idx === 2) key = 'led3';
+          if (!key) return;
+          deviceIdMap[key] = dev.id;
+          console.log('[map]', key, '->', dev.id, dev.name);
+          var st = (dev.status || 'OFF').toUpperCase();
+          var toggle = document.getElementById(key + 'Toggle');
+          var badge = document.getElementById(key + 'Badge');
+          if (toggle) {
+            toggle.checked = (st === 'ON');
+            toggle.disabled = (st === 'LOADING');
+          }
+          if (badge) {
+            if (st === 'LOADING') {
+              badge.textContent = 'LOADING';
+              badge.className = 'badge-loading';
+              setDeviceIcon(key, 'loading');
+            } else if (st === 'ON') {
+              badge.textContent = 'ON';
+              badge.className = 'badge-on';
+              setDeviceIcon(key, 'on');
+            } else {
+              badge.textContent = 'OFF';
+              badge.className = 'badge-off';
+              setDeviceIcon(key, 'off');
+            }
+          }
+          var meta = document.getElementById(key + 'Meta');
+          if (meta && dev.updated_at) meta.textContent = 'Cập nhật: ' + formatDt(dev.updated_at);
+        });
+      } catch (e) {
+        console.warn('devices', e);
+      }
+    }
+
+    async function fillHistoryDeviceFilter() {
+  var sel = document.getElementById('histDevice');
+  if (!sel) return;
+
+  var current = sel.value || 'all';
+  sel.innerHTML = '<option value="all">Tất cả thiết bị</option>';
+
+  try {
+    var res = await api('/devices');
+    var list = res.data || [];
+    list.forEach(function (dev) {
+      var opt = document.createElement('option');
+      // value: id (ổn định) hoặc tên — phải khớp backend filter
+      opt.value = String(dev.id);
+      opt.textContent = dev.name || ('Device #' + dev.id);
+      sel.appendChild(opt);
+    });
+    // giữ lựa chọn cũ nếu còn
+    sel.value = current;
+    if (sel.value !== current) sel.value = 'all';
+  } catch (e) {
+    console.warn('fillHistoryDeviceFilter', e);
+  }
+}
+
+
+    function toggleUserMenu(e) {
+      e.stopPropagation();
+      var menu = document.getElementById('userMenu');
+      menu.classList.toggle('open');
+    }
+
+    function logout() {
+      stopCo2Alarm();
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      if (latestPollTimer) { clearInterval(latestPollTimer); latestPollTimer = null; }
+      var menu = document.getElementById('userMenu');
+      if (menu) menu.classList.remove('open');
+      showLogin(true);
+    }
+
+    // Đóng menu khi click ra ngoài
+    document.addEventListener('click', function (e) {
+      var menu = document.getElementById('userMenu');
+      if (menu && menu.classList.contains('open')) {
+        menu.classList.remove('open');
+      }
+    });
+
+    function showPage(page, opts) {
+      opts = opts || {};
+      // Không cho vào trang app khi chưa login
+      if (page !== 'login' && !getToken()) {
+        showLogin(true);
+        return;
+      }
+
+      if (page === 'login') {
+        showLogin(!!opts.replace);
+        return;
+      }
+
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('appPage').style.display = 'block';
+
+      document.getElementById('page-monitor').classList.add('hidden');
+      document.getElementById('page-sensor').classList.add('hidden');
+      document.getElementById('page-history').classList.add('hidden');
+      document.getElementById('page-profile').classList.add('hidden');
+      var el = document.getElementById('page-' + page);
+      if (el) el.classList.remove('hidden');
+
+      document.querySelectorAll('.sidebar-nav button').forEach(function (b) { b.classList.remove('active'); });
+      var nav = document.getElementById('nav-' + page);
+      if (nav) nav.classList.add('active');
+
+      if (!opts.skipUrl) {
+        navigateTo(page, !!opts.replace);
+      }
+
+      if (page !== 'monitor') stopCo2Alarm();
+      if (page === 'monitor') {
+        loadDevices();
+        ensureCatalog(true).then(function () {
+          setupMonitor();
+          loadLatestSensors();
+        });
+      } else if (page === 'sensor') {
+        sensorPage = 1;
+        ensureCatalog(true).then(function () {
+          renderSensorTypeSelect();
+          loadSensorTable(false);
+        });
+      } else if (page === 'history') {
+        historyPage = 1;
+        fillHistoryDeviceFilter();
+        loadHistoryTable(false);
+      }
+    }
+
+    function showLogin(replace) {
+      document.getElementById('appPage').style.display = 'none';
+      document.getElementById('loginPage').style.display = 'flex';
+      navigateTo('login', replace !== false);
+    }
+
+    function updateSensorSearchPlaceholder(type) {
+      var label = document.getElementById('sensorSearchLabel');
+      var input = document.getElementById('sensorValueFilter');
+      if (!label || !input) return;
+      if (type === 'time') {
+        label.textContent = 'Thời gian';
+        input.placeholder = 'Tìm theo thời gian ';
+      } else if (type === 'temp') {
+        label.textContent = 'Tìm kiếm';
+        input.placeholder = 'Giá trị';
+      } else if (type === 'hum') {
+        label.textContent = 'Tìm kiếm';
+        input.placeholder = 'Giá trị';
+      } else if (type === 'light') {
+        label.textContent = 'Tìm kiếm';
+        input.placeholder = 'Giá trị';
+      } else {
+        label.textContent = 'Tìm kiếm';
+        input.placeholder = 'Giá trị';
+      }
+    }
+
+    // Chỉ đổi placeholder khi chọn kiểu — không lọc bảng
+    function onSensorTypeChange(type) {
+      currentSensorFilter = type;
+      updateSensorSearchPlaceholder(type);
+    }
+
+    function filterSensor(type) {
+      onSensorTypeChange(type);
+    }
+
+    function parseSensorTime(str) {
+      // '29/08/2026 10:30:15' → comparable number
+      if (!str) return 0;
+      var parts = str.trim().split(/\s+/);
+      var d = (parts[0] || '').split('/');
+      var t = (parts[1] || '00:00:00').split(':');
+      if (d.length < 3) return 0;
+      return new Date(+d[2], +d[1] - 1, +d[0], +(t[0] || 0), +(t[1] || 0), +(t[2] || 0)).getTime();
+    }
+
+    function buildSensorRows(type, searchText, applySearch) {
+      searchText = (searchText || '').toString().trim().toLowerCase();
+      applySearch = !!applySearch;
+      let data = sensorData.slice();
+
+      if (sensorTimeClickFilter) {
+        data = data.filter(function (r) {
+          return r.time === sensorTimeClickFilter;
+        });
+      }
+
+      // Luôn dựng đủ 3 loại; chỉ lọc khi applySearch (bấm Tìm kiếm)
+      var rows = [];
+      var idCounter = 1;
+      data.forEach(function (r) {
+        rows.push({ id: idCounter++, type: 'Nhiệt độ', value: r.temp, unit: '°C', time: r.time, kind: 'temp' });
+        rows.push({ id: idCounter++, type: 'Độ ẩm', value: r.hum, unit: '%', time: r.time, kind: 'hum' });
+        rows.push({ id: idCounter++, type: 'Ánh sáng', value: r.light, unit: 'lux', time: r.time, kind: 'light' });
+      });
+
+      if (applySearch && searchText) {
+        if (type === 'time') {
+          rows = rows.filter(function (r) {
+            return r.time.toLowerCase().indexOf(searchText) !== -1;
+          });
+        } else if (type === 'temp' || type === 'hum' || type === 'light') {
+          rows = rows.filter(function (r) {
+            return r.kind === type && String(r.value).toLowerCase().indexOf(searchText) !== -1;
+          });
+        } else {
+          // Tất cả: tìm theo giá trị đo; muốn tìm thời gian thì chọn kiểu Thời gian.
+          rows = rows.filter(function (r) {
+            return String(r.value).toLowerCase().indexOf(searchText) !== -1;
+          });
+        }
+      } else if (applySearch && !searchText && (type === 'temp' || type === 'hum' || type === 'light')) {
+        // Bấm tìm với kiểu đã chọn nhưng ô trống → chỉ hiện loại đó
+        rows = rows.filter(function (r) { return r.kind === type; });
+      }
+
+      // Gán ID cố định trước khi sort (theo thứ tự data gốc)
+      // id đã có từ lúc push
+
+      if (sensorIdSort) {
+        rows.sort(function (a, b) {
+          return sensorIdSort === 'asc' ? a.id - b.id : b.id - a.id;
+        });
+      } else {
+        rows.sort(function (a, b) {
+          var ta = parseSensorTime(a.time);
+          var tb = parseSensorTime(b.time);
+          return sensorTimeSort === 'asc' ? ta - tb : tb - ta;
+        });
+      }
+      return rows;
+    }
+
+    function setSensorTimeSort(dir) {
+      sensorTimeSort = dir;
+      sensorIdSort = null;
+      sensorPage = 1;
+      loadSensorTable(false);
+    }
+
+    function setSensorIdSort(dir) {
+      sensorIdSort = dir;
+      sensorPage = 1;
+      loadSensorTable(false);
+    }
+
+    function setHistoryIdSort(dir) {
+      historyIdSort = dir;
+      historyPage = 1;
+      searchHistory();
+    }
+
+    function filterByTimeClick(timeStr) {
+      // Ấn vào thời gian trên bảng → chỉ xem đúng thời gian đó
+      sensorTimeClickFilter = timeStr;
+      currentSensorFilter = 'time';
+      document.getElementById('sensorTypeSelect').value = 'time';
+      updateSensorSearchPlaceholder('time');
+      var valueInput = document.getElementById('sensorValueFilter');
+      if (valueInput) valueInput.value = timeStr;
+      sensorPage = 1;
+      sensorSearchApplied = true;
+      loadSensorTable(false);
+    }
+
+    function resetSensorFilter() {
+      sensorTimeClickFilter = '';
+      sensorSearchApplied = false;
+      sensorPage = 1;
+      var valueInput = document.getElementById('sensorValueFilter');
+      if (valueInput) valueInput.value = '';
+      document.getElementById('sensorTypeSelect').value = 'all';
+      currentSensorFilter = 'all';
+      updateSensorSearchPlaceholder('all');
+      loadSensorTable(false);
+    }
+
+    function renderPagination(containerId, currentPage, totalItems, pageSize, onPageChange) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize) || 1);
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const start = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+      const end = Math.min(currentPage * pageSize, totalItems);
+
+      let pagesHtml = '';
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+      if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+      for (let i = startPage; i <= endPage; i++) {
+        if (i === currentPage) {
+          pagesHtml += '<button class="pagination-btn active" type="button">' + i + '</button>';
+        } else {
+          pagesHtml += '<button class="pagination-btn" type="button" onclick="' + onPageChange + '(' + i + ')">' + i + '</button>';
+        }
+      }
+
+      var sizeHtml = '';
+      if (containerId === 'sensorPagination') {
+        sizeHtml =
+          '<div class="pagination-size">' +
+          '<label>Số dòng</label>' +
+          '<select onchange="changeSensorPageSize(this.value)">' +
+          '<option value="4"' + (pageSize === 4 ? ' selected' : '') + '>4</option>' +
+          '<option value="6"' + (pageSize === 6 ? ' selected' : '') + '>6</option>' +
+          '<option value="8"' + (pageSize === 8 ? ' selected' : '') + '>8</option>' +
+          '</select></div>';
+      } else if (containerId === 'historyPagination') {
+        sizeHtml =
+          '<div class="pagination-size">' +
+          '<label>Số dòng</label>' +
+          '<select onchange="changeHistoryPageSize(this.value)">' +
+          '<option value="5"' + (pageSize === 5 ? ' selected' : '') + '>5</option>' +
+          '<option value="8"' + (pageSize === 8 ? ' selected' : '') + '>8</option>' +
+          '</select></div>';
+      }
+
+      container.innerHTML =
+        '<div class="pagination-info">Hiển thị ' + start + '–' + end + ' / ' + totalItems + ' bản ghi</div>' +
+        '<div class="pagination-controls">' +
+        sizeHtml +
+        '<button class="pagination-btn" type="button" onclick="' + onPageChange + '(' + (currentPage - 1) + ')"' +
+        (currentPage <= 1 ? ' disabled' : '') + ' title="Trang trước">‹</button>' +
+        pagesHtml +
+        '<button class="pagination-btn" type="button" onclick="' + onPageChange + '(' + (currentPage + 1) + ')"' +
+        (currentPage >= totalPages ? ' disabled' : '') + ' title="Trang sau">›</button>' +
+        '</div>';
+    }
+
+    function changeSensorPageSize(val) {
+      SENSOR_PAGE_SIZE = parseInt(val, 10) || 6;
+      sensorPage = 1;
+      loadSensorTable(false);
+    }
+
+    function goSensorPage(page) {
+      sensorPage = page;
+      loadSensorTable(true);
+    }
+
+    function mapSensorQuery() {
+      return document.getElementById('sensorTypeSelect').value || 'all';
+    }
+
+    async function loadSensorTable(keepPage) {
+      const thead = document.getElementById('sensorTableHead');
+      const tbody = document.getElementById('sensorTableBody');
+      if (!keepPage) sensorPage = 1;
+
+      var valueVal = '';
+      var valueInput = document.getElementById('sensorValueFilter');
+      if (valueInput && sensorSearchApplied) valueVal = valueInput.value.trim();
+
+      var timeArrow = sensorTimeSort === 'asc' ? ' ↑' : ' ↓';
+      var idArrow = sensorIdSort === 'asc' ? ' ↑' : (sensorIdSort === 'desc' ? ' ↓' : '');
+      var idActive = sensorIdSort ? ' active' : '';
+      var timeActive = !sensorIdSort ? ' active' : '';
+      thead.innerHTML =
+        '<th class="sortable' + idActive + '" onclick="setSensorIdSort(sensorIdSort===\'asc\'?\'desc\':\'asc\')" title="Sắp xếp theo ID">' +
+        'ID<span class="sort-indicator">' + idArrow + '</span></th>' +
+        '<th>Kiểu</th><th>Giá trị</th><th>Đơn vị</th>' +
+        '<th class="sortable' + timeActive + '" onclick="setSensorTimeSort(sensorTimeSort===\'desc\'?\'asc\':\'desc\')" title="Sắp xếp theo thời gian">' +
+        'Thời gian ghi nhận<span class="sort-indicator">' + timeArrow + '</span></th>';
+
+      var sensor = mapSensorQuery();
+      var sort = sensorIdSort ? 'id' : 'time';
+      var order = sensorIdSort ? sensorIdSort : sensorTimeSort;
+      var q = '/data?sensor=' + encodeURIComponent(sensor) +
+        '&page=' + sensorPage + '&page_size=' + SENSOR_PAGE_SIZE +
+        '&sort=' + sort + '&order=' + order;
+      if (valueVal) q += '&value=' + encodeURIComponent(valueVal);
+
+      try {
+        var res = await api(q);
+        var rows = res.data || [];
+        var total = res.count != null ? res.count : rows.length;
+        if (res.page) sensorPage = res.page;
+
+        if (total === 0 || rows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">Không có dữ liệu</td></tr>';
+        } else {
+          tbody.innerHTML = rows.map(function (r) {
+            return '<tr><td>' + r.id + '</td><td>' + esc(sensorTypeLabel(r.sensor_type)) +
+              '</td><td>' + r.value + '</td><td>' + esc(sensorUnit(r.sensor_type)) +
+              '</td><td>' + formatDt(r.recorded_at) + '</td></tr>';
+          }).join('');
+        }
+        renderPagination('sensorPagination', sensorPage, total, SENSOR_PAGE_SIZE, 'goSensorPage');
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ef4444;">' + e.message + '</td></tr>';
+      }
+    }
+
+    // giữ tên cũ để không phải sửa mọi chỗ gọi
+    function renderSensorTable(type, _unused, keepPage) {
+      loadSensorTable(!!keepPage);
+    }
+
+    function searchSensor() {
+      sensorTimeClickFilter = '';
+      sensorSearchApplied = true;
+      sensorPage = 1;
+      currentSensorFilter = document.getElementById('sensorTypeSelect').value;
+      loadSensorTable(false);
+    }
+
+    function goHistoryPage(page) {
+      historyPage = page;
+      loadHistoryTable(true);
+    }
+
+    function changeHistoryPageSize(val) {
+      HISTORY_PAGE_SIZE = parseInt(val, 10) || 5;
+      historyPage = 1;
+      loadHistoryTable(false);
+    }
+
+    async function loadHistoryTable(keepPage) {
+      if (!keepPage) historyPage = 1;
+      var device = document.getElementById('histDevice').value;
+      var action = document.getElementById('histAction').value;
+      var statusV = document.getElementById('histStatus').value;
+      var timeV = document.getElementById('histTime').value.trim();
+
+      var q = '/history?page=' + historyPage +
+        '&page_size=' + HISTORY_PAGE_SIZE +
+        '&order=' + (historyIdSort === 'asc' ? 'asc' : 'desc');
+      if (device && device !== 'all') q += '&device=' + encodeURIComponent(device);
+      if (action && action !== 'all') q += '&action=' + encodeURIComponent(action);
+      if (statusV && statusV !== 'all') q += '&status=' + encodeURIComponent(statusV);
+      if (timeV) q += '&time=' + encodeURIComponent(timeV);
+
+      var tbody = document.getElementById('historyTableBody');
+      try {
+        var res = await api(q);
+        var rows = res.data || [];
+        var total = res.count != null ? res.count : rows.length;
+        if (res.page) historyPage = res.page;
+
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#94a3b8;">Không có dữ liệu</td></tr>';
+        } else {
+          tbody.innerHTML = rows.map(function (r) {
+            return '<tr><td>' + r.id + '</td><td>' + (r.user_name || '') +
+              '</td><td>' + (r.device_name || '') + '</td><td>' + actionLabel(r.action) +
+              '</td><td>' + r.previous_status + ' → ' + r.new_status +
+              '</td><td>' + formatDt(r.created_at) + '</td></tr>';
+          }).join('');
+        }
+        renderPagination('historyPagination', historyPage, total, HISTORY_PAGE_SIZE, 'goHistoryPage');
+        var arrow = document.getElementById('histIdArrow');
+        if (arrow) arrow.textContent = historyIdSort === 'asc' ? ' ↑' : ' ↓';
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;">' + e.message + '</td></tr>';
+      }
+    }
+
+    function renderHistory(filter, keepPage) {
+      loadHistoryTable(!!keepPage);
+    }
+
+    function searchHistory() {
+      historyPage = 1;
+      loadHistoryTable(false);
+    }
+
+    function resetHistoryFilter() {
+      document.getElementById('histDevice').value = 'all';
+      document.getElementById('histAction').value = 'all';
+      document.getElementById('histStatus').value = 'all';
+      document.getElementById('histTime').value = '';
+      historyPage = 1;
+      loadHistoryTable(false);
+    }
+
+    function setHistoryIdSort(dir) {
+      historyIdSort = dir;
+      historyPage = 1;
+      loadHistoryTable(false);
+    }
+
+    var devicesCache = []; // danh sách từ API
+
+async function loadDevices() {
+  try {
+    var res = await api('/devices');
+    devicesCache = res.data || [];
+    renderDeviceCards(devicesCache);
+  } catch (e) {
+    console.warn('devices', e);
+  }
+}
+
+function renderDeviceCards(list) {
+  var grid = document.getElementById('devicesGrid');
+  if (!grid) return;
+  if (!list.length) {
+    grid.innerHTML = '<div style="color:#94a3b8;font-size:13px;">Chưa có thiết bị</div>';
+    return;
+  }
+  grid.innerHTML = list.map(function (dev) {
+    var st = (dev.status || 'OFF').toUpperCase();
+    // F5 / load: LOADING treo = coi như thao tác thất bại → về OFF
+    if (st === 'LOADING') st = 'OFF';
+
+    var checked = st === 'ON' ? ' checked' : '';
+    var disabled = '';
+    var badgeClass = st === 'ON' ? 'badge-on' : 'badge-off';
+    var iconClass = (dev.type === 'FAN') ? 'fan' : 'light';
+    return (
+      '<div class="device-card" data-id="' + dev.id + '">' +
+        '<div class="device-top">' +
+          '<div class="device-icon ' + iconClass + '">' +
+            (dev.type === 'FAN' ? '🌀' : '💡') +
+          '</div>' +
+          '<div class="device-text">' +
+            '<h3>' + (dev.name || '') + '</h3>' +
+            '<div class="type">Loại: ' + (dev.type || '') + '</div>' +
+          '</div>' +
+          '<div class="device-switch-row">' +
+            '<span class="' + badgeClass + '" id="badge-' + dev.id + '">' + st + '</span>' +
+            '<label class="toggle">' +
+              '<input type="checkbox" id="toggle-' + dev.id + '"' + checked + disabled +
+                ' onchange="toggleDeviceById(' + dev.id + ')">' +
+              '<span class="slider"></span>' +
+            '</label>' +
+          '</div>' +
+        '</div>' +
+        '<div class="device-meta-block">' +
+          '<div class="meta" id="meta-' + dev.id + '">Cập nhật: ' + formatDt(dev.updated_at) + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+async function toggleDeviceById(deviceId) {
+  var toggle = document.getElementById('toggle-' + deviceId);
+  var badge = document.getElementById('badge-' + deviceId);
+  if (!toggle || !badge) return;
+
+  var wantOn = toggle.checked;       // sau khi click
+  var action = wantOn ? 'ON' : 'OFF';
+  var prevChecked = !wantOn;         // trước khi click
+  var prevLabel = prevChecked ? 'ON' : 'OFF';
+  var prevClass = prevChecked ? 'badge-on' : 'badge-off';
+
+  function restorePrev() {
+    toggle.checked = prevChecked;
+    badge.textContent = prevLabel;
+    badge.className = prevClass;
+  }
+
+  badge.textContent = 'LOADING';
+  badge.className = 'badge-loading';
+  toggle.disabled = true;
+
+  var minWait = new Promise(function (r) { setTimeout(r, 2000); });
+
+  try {
+    var results = await Promise.all([
+      api('/devices/' + deviceId + '/control', {
+        method: 'PUT',
+        body: JSON.stringify({ action: action })
+      }).catch(function (err) { return { __error: err }; }),
+      minWait
+    ]);
+    var res = results[0];
+
+    // HTTP lỗi / 502 / success:false
+    if (res && res.__error) throw res.__error;
+    if (res && res.success === false) throw new Error(res.message || 'Lỗi điều khiển');
+
+    var st = String((res.data && res.data.status) || '').toUpperCase();
+    // Không đúng ON/OFF mong muốn → coi như thất bại
+    if (st !== action) {
+      restorePrev();
+      showAlertBox('Vui lòng kết nối với mạch.');
+      return;
+    }
+
+    badge.textContent = st;
+    badge.className = st === 'ON' ? 'badge-on' : 'badge-off';
+    toggle.checked = (st === 'ON');
+    var meta = document.getElementById('meta-' + deviceId);
+    if (meta && res.data && res.data.updated_at) {
+      meta.textContent = 'Cập nhật: ' + formatDt(res.data.updated_at);
+    }
+  } catch (e) {
+    restorePrev();  // đang TẮT → vẫn TẮT
+    showAlertBox('Vui lòng kết nối với mạch.');
+  } finally {
+    toggle.disabled = false;
+  }
+}
+
+    function initChart() {
+      var canvas = document.getElementById('sensorChart');
+      if (!canvas) return;
+      if (chart) { chart.destroy(); chart = null; }
+      lastChartKey = '';
+      chartCodes = mainSensors().map(function (s) { return s.code; });
+
+      var datasets = mainSensors().map(function (s) {
+        var k = CHART_SCALE[s.code];
+        return {
+          label: s.name + (k ? ' (÷' + k + ')' : ''),
+          data: [],
+          borderColor: s.color,
+          backgroundColor: hexBg(s.color, 0.07),
+          tension: 0.4,
+          fill: true,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          borderWidth: 2,
+          spanGaps: true
+        };
+      });
+
+      chart = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: { labels: [], datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: false }},
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#94a3b8', font: { size: 11 } }
+            },
+            y: {
+              grid: { color: '#f1f5f9' },
+              ticks: { color: '#94a3b8', font: { size: 11 } }
+            }
+          },
+          interaction: { mode: 'index', intersect: false }
+        }
+      });
+    }
+
+    function startRealtimeSimulation() {
+      setInterval(function () {
+        const cards = document.querySelectorAll('.metric-card .metric-value');
+        if (cards.length < 3) return;
+
+        const t = (28 + Math.random() * 1.2).toFixed(1);
+        const h = (64 + Math.random() * 2).toFixed(1);
+        const l = Math.floor(340 + Math.random() * 30);
+
+        cards[0].innerHTML = t + ' <span class="metric-unit">°C</span>';
+        cards[1].innerHTML = h + ' <span class="metric-unit">%</span>';
+        cards[2].innerHTML = l + ' <span class="metric-unit">lux</span>';
+
+        const now = new Date();
+        document.getElementById('lastUpdate').textContent =
+          now.toLocaleDateString('vi-VN') + ' ' +
+          now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        if (chart) {
+          chart.data.datasets[0].data.shift();
+          chart.data.datasets[0].data.push(parseFloat(t));
+          chart.data.datasets[1].data.shift();
+          chart.data.datasets[1].data.push(parseFloat(h));
+          chart.data.datasets[2].data.shift();
+          chart.data.datasets[2].data.push(l / 10);
+          chart.data.labels.shift();
+          chart.data.labels.push(
+            now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+          );
+          chart.update('none');
+        }
+      }, 4000);
+    }
+    // Router: URL ↔ trang; token → dashboard; không token → login
+    function resolvePageFromPath() {
+      var path = window.location.pathname.replace(/\/+$/, '') || '/';
+      return PATH_TO_PAGE[path] || PATH_TO_PAGE[path.toLowerCase()] || null;
+    }
+
+    function bootApp() {
+      var token = getToken();
+      var page = resolvePageFromPath();
+
+      if (token) {
+        try {
+          var user = JSON.parse(localStorage.getItem('user') || 'null');
+          if (user) applyUserToUI(user);
+        } catch (e) {}
+        startLatestPoll();
+        // / hoặc /login khi đã có token → dashboard
+        if (!page || page === 'login') {
+          showPage('monitor', { replace: true });
+        } else {
+          showPage(page, { replace: true });
+        }
+      } else {
+        // chưa login: mọi path → login (trừ khi đang ở /login)
+        showLogin(true);
+      }
+    }
+
+    window.addEventListener('popstate', function (e) {
+      var page = (e.state && e.state.page) || resolvePageFromPath() || 'monitor';
+      if (page === 'login') {
+        if (getToken()) showPage('monitor', { skipUrl: true });
+        else showLogin(true);
+      } else {
+        showPage(page, { skipUrl: true });
+      }
+    });
+
+    bootApp();
+  </script>
+</body>
+
+</html>

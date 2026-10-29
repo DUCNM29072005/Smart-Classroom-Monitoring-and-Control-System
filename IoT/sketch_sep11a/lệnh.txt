@@ -1,0 +1,20 @@
+cd "C:\Program Files\mosquitto"
+mosquitto.exe -c mosquitto.conf -v
+
+Lệnh lắng Nghe dữ liệu:
+mosquitto_sub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/#" -v 
+mosquitto_sub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/sensor/#" -v
+mosquitto_sub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/sensor/values/#" -v
+mosquitto_sub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/sensor/data" -v
+
+mosquitto_sub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/led/#" -v
+mosquitto_sub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/led/+" -v
+mosquitto_sub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/led/+/status" -v
+
+Lệnh đẩy dữ liệu
+mosquitto_pub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/sensor/data" -m '{"temperature":30.5,"humidity":68.0,"light":550,"recorded_at":"14/09/2026 19:40:42"}'
+mosquitto_pub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/sensor/values/temperature" -m "30"
+mosquitto_pub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/sensor/values/humidity" -m "70"
+mosquitto_pub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/sensor/values/light" -m "500"
+mosquitto_pub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/led/1" -m "ON"
+mosquitto_pub -h 192.168.1.229 -p 2000 -u iotuser -P iot123 -t "iot/led/all" -m "ON"
